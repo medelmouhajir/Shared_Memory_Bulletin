@@ -25,16 +25,23 @@ export function LiveTerminal() {
     });
   }, [subscribe]);
 
+  const visibleLines = lines.filter((line) => !agentId || line.agentId === agentId);
+  const emptyMessage = agentId
+    ? "No output for the selected agent yet."
+    : "No console output yet.";
+
   return (
     <pre className="terminal">
-      {lines
-        .filter((line) => !agentId || line.agentId === agentId)
-        .map((line, index) => (
+      {visibleLines.length === 0 ? (
+        <span className="terminal-empty">{emptyMessage}</span>
+      ) : (
+        visibleLines.map((line, index) => (
           <span key={`${line.agentId}-${index}`} className={line.stream}>
             [{line.agentId}] {line.line}
             {"\n"}
           </span>
-        ))}
+        ))
+      )}
     </pre>
   );
 }

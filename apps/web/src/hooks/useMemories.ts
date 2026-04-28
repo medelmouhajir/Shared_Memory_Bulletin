@@ -3,11 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Memory, MemoryFilters, OpenClawEvent } from "@openclaw/types";
 
 import { api } from "../lib/api";
+import { getRealtimeRefetchInterval } from "../lib/realtime";
 import { useWebSocket } from "./useWebSocket";
 
 export function useMemories(filters?: MemoryFilters) {
   const queryClient = useQueryClient();
-  const { subscribe } = useWebSocket();
+  const { subscribe, isConnected } = useWebSocket();
 
   useEffect(() => {
     return subscribe((message) => {
@@ -27,6 +28,15 @@ export function useMemories(filters?: MemoryFilters) {
             old ? { ...old, memory: { ...old.memory, ...message.patch } } : old,
         );
         queryClient.invalidateQueries({ queryKey: ["memories"] });
+        return;
+      }
+      if (message.type === "memory:deleted") {
+        queryClient.setQueriesData(
+          { queryKey: ["memories"] },
+          (old: Memory[] | undefined) => old?.filter((memory) => memory.id !== message.id),
+        );
+        queryClient.removeQueries({ queryKey: ["memory", message.id] });
+        queryClient.invalidateQueries({ queryKey: ["memories"] });
       }
     });
   }, [queryClient, subscribe]);
@@ -35,5 +45,6 @@ export function useMemories(filters?: MemoryFilters) {
     queryKey: ["memories", filters],
     queryFn: () => api.memories.list(filters),
     staleTime: 30_000,
+    refetchInterval: getRealtimeRefetchInterval(isConnected),
   });
 }

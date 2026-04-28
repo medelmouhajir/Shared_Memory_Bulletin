@@ -21,8 +21,13 @@ function filterByTitle(memories: Memory[], titleFilter: string): Memory[] {
   return memories.filter((m) => m.title.toLowerCase().includes(q));
 }
 
-export function Board({ titleFilter = "" }: { titleFilter?: string }) {
-  const memories = useMemories();
+type Props = {
+  titleFilter?: string;
+  datePreset: "today" | "yesterday" | "this_week" | "this_month";
+};
+
+export function Board({ titleFilter = "", datePreset }: Props) {
+  const memories = useMemories({ date_preset: datePreset });
   const filtered = filterByTitle(memories.data ?? [], titleFilter);
   const grouped = groupByStatus(filtered);
 

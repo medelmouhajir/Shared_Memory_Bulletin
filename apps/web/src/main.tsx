@@ -5,6 +5,7 @@ import { createRootRoute, createRoute, createRouter, Navigate, RouterProvider } 
 import { registerSW } from "virtual:pwa-register";
 
 import { RootLayout } from "./routes/__root";
+import { AgentDetailRoute } from "./routes/agent-detail";
 import { AgentsRoute } from "./routes/agents";
 import { ConsoleRoute } from "./routes/console";
 import { FeedRoute } from "./routes/feed";
@@ -21,6 +22,7 @@ const indexRoute = createRoute({
 });
 const kanbanRoute = createRoute({ getParentRoute: () => rootRoute, path: "/kanban", component: KanbanRoute });
 const agentsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/agents", component: AgentsRoute });
+const agentDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: "/agents/$id", component: AgentDetailRoute });
 const consoleRoute = createRoute({ getParentRoute: () => rootRoute, path: "/console", component: ConsoleRoute });
 const timelineRoute = createRoute({ getParentRoute: () => rootRoute, path: "/timeline", component: TimelineRoute });
 const graphRoute = createRoute({ getParentRoute: () => rootRoute, path: "/graph", component: GraphRoute });
@@ -30,6 +32,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   kanbanRoute,
   agentsRoute,
+  agentDetailRoute,
   consoleRoute,
   timelineRoute,
   graphRoute,

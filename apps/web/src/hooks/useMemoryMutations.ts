@@ -56,12 +56,11 @@ export function useMemoryMutations() {
       const previousLists = queryClient.getQueriesData<Memory[]>({ queryKey: ["memories"] });
       const previousDetail = queryClient.getQueryData<MemoryDetail>(["memory", id]);
 
-      queryClient.setQueriesData({ queryKey: ["memories"] }, (old: Memory[] | undefined) =>
-        patchMemoryInList(old, id, { status: "fail" }),
+      queryClient.setQueriesData(
+        { queryKey: ["memories"] },
+        (old: Memory[] | undefined) => old?.filter((memory) => memory.id !== id),
       );
-      queryClient.setQueryData(["memory", id], (old: MemoryDetail | undefined) =>
-        old ? { ...old, memory: { ...old.memory, status: "fail" } } : old,
-      );
+      queryClient.removeQueries({ queryKey: ["memory", id] });
 
       return { previousLists, previousDetail };
     },
@@ -75,5 +74,59 @@ export function useMemoryMutations() {
     },
   });
 
-  return { createMemory, updateStatus, removeMemory };
+  const triggerMemory = useMutation({
+    mutationFn: (id: string) => api.memories.trigger(id),
+    onSettled: (_data, _error, id) => {
+      queryClient.invalidateQueries({ queryKey: ["memories"] });
+      queryClient.invalidateQueries({ queryKey: ["memory", id] });
+    },
+  });
+
+  const retryMemory = useMutation({
+    mutationFn: ({ id, scheduledAt }: { id: string; scheduledAt: number | null }) =>
+      api.memories.update(id, { status: scheduledAt ? "scheduled" : "created" }),
+    onSettled: (_data, _error, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["memories"] });
+      queryClient.invalidateQueries({ queryKey: ["memory", id] });
+    },
+  });
+
+  const duplicateMemory = useMutation({
+    mutationFn: (memory: Memory) =>
+      api.memories.create({
+        type: memory.type,
+        title: `${memory.title} (copy)`,
+        body: memory.body,
+        priority: memory.priority,
+        assigned_to: memory.assigned_to,
+        scheduled_at: memory.scheduled_at,
+        max_retries: memory.max_retries,
+      }),
+    onSuccess: (memory) => {
+      queryClient.setQueriesData({ queryKey: ["memories"] }, (old: Memory[] | undefined) =>
+        old ? [memory, ...old] : old,
+      );
+      queryClient.invalidateQueries({ queryKey: ["memories"] });
+    },
+  });
+
+  const quickEditMemory = useMutation({
+    mutationFn: ({
+      id,
+      assigned_to,
+      scheduled_at,
+      priority,
+    }: {
+      id: string;
+      assigned_to: string | null;
+      scheduled_at: number | null;
+      priority: number;
+    }) => api.memories.update(id, { assigned_to, scheduled_at, priority }),
+    onSettled: (_data, _error, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["memories"] });
+      queryClient.invalidateQueries({ queryKey: ["memory", id] });
+    },
+  });
+
+  return { createMemory, updateStatus, removeMemory, triggerMemory, retryMemory, duplicateMemory, quickEditMemory };
 }

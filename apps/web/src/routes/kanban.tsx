@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import type { MemoryFilters } from "@openclaw/types";
 
 import { Board } from "../components/KanbanBoard/Board";
 import { PageHeader } from "../components/shared/PageHeader";
@@ -8,12 +9,13 @@ import { useMemoryMutations } from "../hooks/useMemoryMutations";
 
 export function KanbanRoute() {
   const [search, setSearch] = useState("");
+  const [datePreset, setDatePreset] = useState<NonNullable<MemoryFilters["date_preset"]>>("today");
   const [title, setTitle] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [priority, setPriority] = useState(2);
   const [scheduledAt, setScheduledAt] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
-  const memories = useMemories();
+  const memories = useMemories({ date_preset: datePreset });
   const agents = useAgents();
   const { createMemory } = useMemoryMutations();
   const total = memories.data?.length ?? 0;
@@ -51,6 +53,19 @@ export function KanbanRoute() {
         search={{ value: search, onChange: setSearch, placeholder: "Search tasks…" }}
         {...(avatarLabels.length > 0 ? { avatarLabels } : {})}
       >
+        <label className="kanban-date-filter">
+          <span>Date range</span>
+          <select
+            value={datePreset}
+            onChange={(e) => setDatePreset(e.target.value as NonNullable<MemoryFilters["date_preset"]>)}
+            aria-label="Filter by date range"
+          >
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="this_week">This Week</option>
+            <option value="this_month">This Month</option>
+          </select>
+        </label>
         <form className="quick-add-form" onSubmit={handleQuickAddSubmit}>
           <input
             type="text"
@@ -86,7 +101,7 @@ export function KanbanRoute() {
         </form>
       </PageHeader>
       {feedback ? <p className="kanban-feedback">{feedback}</p> : null}
-      <Board titleFilter={search} />
+      <Board titleFilter={search} datePreset={datePreset} />
     </>
   );
 }

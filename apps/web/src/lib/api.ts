@@ -1,6 +1,7 @@
 import type {
   Agent,
   CreateAgentInput,
+  EventFilters,
   CreateMemoryInput,
   CreateScheduleInput,
   Dependency,
@@ -45,11 +46,13 @@ function qs(filters?: Record<string, string | number | undefined | null>): strin
 export const api = {
   agents: {
     list: () => request<{ agents: Agent[] }>("/agents").then((r) => r.agents),
+    get: (id: string) => request<{ agent: Agent }>(`/agents/${id}`).then((r) => r.agent),
     status: () => request<{ status: Record<string, number> }>("/agents/status").then((r) => r.status),
     create: (input: CreateAgentInput) =>
       request<{ agent: Agent }>("/agents", { method: "POST", body: JSON.stringify(input) }).then((r) => r.agent),
     heartbeat: (id: string) =>
       request<{ agent: Agent }>(`/agents/${id}/heartbeat`, { method: "PATCH" }).then((r) => r.agent),
+    remove: (id: string) => request<{ ok: true }>(`/agents/${id}`, { method: "DELETE" }),
   },
   memories: {
     list: (filters?: MemoryFilters) => request<{ memories: Memory[] }>(`/memories${qs(filters)}`).then((r) => r.memories),
@@ -75,6 +78,6 @@ export const api = {
       request<{ dependency: Dependency }>("/workflow/dependencies", { method: "POST", body: JSON.stringify(input) }),
   },
   events: {
-    list: () => request<{ events: OpenClawEvent[] }>("/events").then((r) => r.events),
+    list: (filters?: EventFilters) => request<{ events: OpenClawEvent[] }>(`/events${qs(filters)}`).then((r) => r.events),
   },
 };
