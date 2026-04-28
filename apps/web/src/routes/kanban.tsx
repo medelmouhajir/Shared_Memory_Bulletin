@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { MemoryFilters } from "@openclaw/types";
 
 import { Board } from "../components/KanbanBoard/Board";
@@ -10,6 +10,7 @@ import { useMemoryMutations } from "../hooks/useMemoryMutations";
 export function KanbanRoute() {
   const [search, setSearch] = useState("");
   const [datePreset, setDatePreset] = useState<NonNullable<MemoryFilters["date_preset"]>>("today");
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [priority, setPriority] = useState(2);
@@ -21,6 +22,28 @@ export function KanbanRoute() {
   const total = memories.data?.length ?? 0;
   const avatarLabels = (agents.data ?? []).map((a) => a.name);
   const canSubmit = title.trim().length > 0 && !createMemory.isPending;
+
+  const handleOpenCreateTask = () => {
+    setFeedback(null);
+    setIsCreateTaskOpen(true);
+  };
+
+  const handleCloseCreateTask = () => {
+    if (createMemory.isPending) return;
+    setIsCreateTaskOpen(false);
+  };
+
+  useEffect(() => {
+    if (!isCreateTaskOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleCloseCreateTask();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isCreateTaskOpen, createMemory.isPending]);
 
   async function handleQuickAddSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,6 +62,7 @@ export function KanbanRoute() {
       setAssignedTo("");
       setPriority(2);
       setScheduledAt("");
+      setIsCreateTaskOpen(false);
       setFeedback("Task added.");
     } catch {
       setFeedback("Failed to add task.");
@@ -66,41 +90,62 @@ export function KanbanRoute() {
             <option value="this_month">This Month</option>
           </select>
         </label>
-        <form className="quick-add-form" onSubmit={handleQuickAddSubmit}>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Quick add task title"
-            aria-label="Quick add task title"
-          />
-          <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} aria-label="Assign to">
-            <option value="">Unassigned</option>
-            {(agents.data ?? []).map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </select>
-          <select value={priority} onChange={(e) => setPriority(Number(e.target.value))} aria-label="Priority">
-            {[1, 2, 3, 4, 5].map((value) => (
-              <option key={value} value={value}>
-                P{value}
-              </option>
-            ))}
-          </select>
-          <input
-            type="datetime-local"
-            value={scheduledAt}
-            onChange={(e) => setScheduledAt(e.target.value)}
-            aria-label="Schedule for"
-          />
-          <button type="submit" disabled={!canSubmit}>
-            {createMemory.isPending ? "Adding…" : "Add"}
-          </button>
-        </form>
+        <button type="button" className="quick-add-open-btn" onClick={handleOpenCreateTask}>
+          New task
+        </button>
       </PageHeader>
       {feedback ? <p className="kanban-feedback">{feedback}</p> : null}
+      {isCreateTaskOpen ? (
+        <div className="quick-add-modal-overlay" onClick={handleCloseCreateTask}>
+          <div
+            className="quick-add-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Create new task"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="quick-add-modal-header">
+              <h2>Create new task</h2>
+              <button type="button" className="quick-add-modal-close" onClick={handleCloseCreateTask}>
+                Close
+              </button>
+            </div>
+            <form className="quick-add-form quick-add-form--modal" onSubmit={handleQuickAddSubmit}>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Quick add task title"
+                aria-label="Quick add task title"
+              />
+              <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} aria-label="Assign to">
+                <option value="">Unassigned</option>
+                {(agents.data ?? []).map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}
+                  </option>
+                ))}
+              </select>
+              <select value={priority} onChange={(e) => setPriority(Number(e.target.value))} aria-label="Priority">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <option key={value} value={value}>
+                    P{value}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                aria-label="Schedule for"
+              />
+              <button type="submit" disabled={!canSubmit}>
+                {createMemory.isPending ? "Adding…" : "Add"}
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : null}
       <Board titleFilter={search} datePreset={datePreset} />
     </>
   );

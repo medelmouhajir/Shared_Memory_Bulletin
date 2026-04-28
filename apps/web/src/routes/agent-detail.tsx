@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -11,21 +11,22 @@ import { useUiStore } from "../store/ui";
 
 export function AgentDetailRoute() {
   const { id } = useParams({ from: "/agents/$id" });
+  const agentId = id ?? "";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const setConsoleAgentId = useUiStore((state) => state.setConsoleAgentId);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const agentQuery = useAgent(id);
+  const agentQuery = useAgent(agentId);
   const eventsQuery = useQuery({
-    queryKey: ["events", "agent", id],
-    queryFn: () => api.events.list({ agent_id: id, limit: 100, offset: 0 }),
+    queryKey: ["events", "agent", agentId],
+    queryFn: () => api.events.list({ agent_id: agentId, limit: 100, offset: 0 }),
     enabled: Boolean(id),
   });
 
   const heartbeatMutation = useMutation({
-    mutationFn: () => api.agents.heartbeat(id),
+    mutationFn: () => api.agents.heartbeat(agentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["agent", id] });
+      queryClient.invalidateQueries({ queryKey: ["agent", agentId] });
       queryClient.invalidateQueries({ queryKey: ["agents"] });
       queryClient.invalidateQueries({ queryKey: ["agent-status"] });
       setFeedback("Heartbeat sent.");
@@ -34,7 +35,7 @@ export function AgentDetailRoute() {
   });
 
   const removeMutation = useMutation({
-    mutationFn: () => api.agents.remove(id),
+    mutationFn: () => api.agents.remove(agentId),
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["agents"] });
       queryClient.invalidateQueries({ queryKey: ["agent-status"] });
@@ -48,7 +49,7 @@ export function AgentDetailRoute() {
   const agent = agentQuery.data;
 
   const handleOpenConsole = async () => {
-    setConsoleAgentId(id);
+    setConsoleAgentId(agentId);
     await navigate({ to: "/console" });
   };
 
@@ -59,12 +60,24 @@ export function AgentDetailRoute() {
     await removeMutation.mutateAsync();
   };
 
+  const handleBack = async () => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    await navigate({ to: "/agents" });
+  };
+
   return (
     <>
       <PageHeader
         title={agent?.name ?? "Agent details"}
         subtitle={agent ? `${agent.status} • Last pulse ${relativeTime(agent.last_seen)}` : "Loading agent…"}
-      />
+      >
+        <button type="button" className="agent-detail-back-link" onClick={() => void handleBack()}>
+          Back
+        </button>
+      </PageHeader>
       <div className="agent-detail-layout">
         <section className="panel agent-detail-data">
           <div className="agent-detail-heading">
@@ -126,9 +139,6 @@ export function AgentDetailRoute() {
           <p className="agent-detail-next-features">
             Suggested next features: mark offline/idle, restart request, copy agent ID, export logs.
           </p>
-          <Link to="/agents" className="agent-detail-back-link">
-            Back to agents
-          </Link>
         </section>
       </div>
 

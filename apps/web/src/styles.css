@@ -1193,13 +1193,26 @@ main select {
 }
 
 .agent-detail-back-link {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  background: #fff;
   color: #4338ca;
-  font-weight: 600;
-  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
 }
 
 .agent-detail-back-link:hover {
-  text-decoration: underline;
+  background: #eef2ff;
+}
+
+.agent-detail-back-link:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--shadow-card),
+    0 0 0 3px rgb(99 102 241 / 0.2);
 }
 
 .page-header {
@@ -1286,6 +1299,80 @@ main select {
   flex-wrap: wrap;
   gap: 0.45rem;
   justify-content: flex-end;
+}
+
+.quick-add-open-btn {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: #fff;
+  color: #4338ca;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+.quick-add-open-btn:hover {
+  background: #eef2ff;
+}
+
+.quick-add-open-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--shadow-card),
+    0 0 0 3px rgb(99 102 241 / 0.2);
+}
+
+.quick-add-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.quick-add-modal {
+  width: min(560px, 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  background: #f8fafc;
+  box-shadow: 0 26px 50px rgb(15 23 42 / 0.25);
+  padding: 1rem;
+}
+
+.quick-add-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.quick-add-modal-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.quick-add-modal-close {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quick-add-form--modal {
+  justify-content: flex-start;
+}
+
+.quick-add-form--modal input[type="text"] {
+  min-width: 100%;
 }
 
 .kanban-date-filter {
