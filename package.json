@@ -1,0 +1,29 @@
+{
+  "name": "openclaw",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "sdk"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel dev:server dev:web",
+    "dev:server": "bun --cwd apps/server run dev",
+    "dev:web": "bun --cwd apps/web run dev",
+    "build": "bun run build:types && bun run build:server && bun run build:web && bun run build:sdk",
+    "build:types": "bun --cwd packages/types run build",
+    "build:server": "bun --cwd apps/server run build",
+    "build:web": "bun --cwd apps/web run build",
+    "build:sdk": "bun --cwd sdk run build",
+    "start": "bun --cwd apps/server run start",
+    "test": "bun test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "bun run --filter '*' lint"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest"
+  }
+}

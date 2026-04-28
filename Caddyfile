@@ -1,0 +1,7 @@
+:80 {
+  reverse_proxy server:3000
+}
+
+openclaw.example.com {
+  reverse_proxy server:3000
+}

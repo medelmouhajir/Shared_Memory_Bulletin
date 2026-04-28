@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.local
+*.db
+*.db-shm
+*.db-wal
+data/*
+!data/.gitkeep
+coverage
+.DS_Store
+*.log
