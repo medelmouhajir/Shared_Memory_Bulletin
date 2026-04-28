@@ -38,3 +38,13 @@ Server logs are structured JSON through pino. OpenTelemetry environment variable
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 OTEL_SERVICE_NAME=openclaw
 ```
+
+## PWA Operations Notes
+
+- The web app ships with a generated service worker (`generateSW`) and web manifest for installability.
+- Static frontend assets are precached for faster startup and standalone launches.
+- Live API and WebSocket data are network-first by design in this phase, so full offline mode is not expected.
+- After a deployment, verify:
+  1. Browser install prompt is available on `https` origins.
+  2. `manifest.webmanifest` loads successfully.
+  3. Service worker is registered and active in browser application tooling.

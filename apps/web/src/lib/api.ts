@@ -58,6 +58,8 @@ export const api = {
       request<{ memory: Memory }>("/memories", { method: "POST", body: JSON.stringify(input) }).then((r) => r.memory),
     update: (id: string, input: UpdateMemoryInput) =>
       request<{ memory: Memory }>(`/memories/${id}`, { method: "PATCH", body: JSON.stringify(input) }).then((r) => r.memory),
+    remove: (id: string) =>
+      request<{ memory: Memory }>(`/memories/${id}`, { method: "DELETE" }).then((r) => r.memory),
     trigger: (id: string) => request<{ ok: true }>(`/memories/${id}/trigger`, { method: "POST" }),
   },
   scheduler: {

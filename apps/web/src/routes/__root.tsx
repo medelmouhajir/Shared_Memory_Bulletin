@@ -1,5 +1,6 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Activity, CalendarDays, ChevronLeft, ChevronRight, Columns3, GitBranch, Rss, Terminal } from "lucide-react";
+import { Activity, CalendarDays, ChevronLeft, ChevronRight, Columns3, GitBranch, Menu, Rss, Terminal, X } from "lucide-react";
+import { useState } from "react";
 
 import { CardDetail } from "../components/KanbanBoard/CardDetail";
 import { CommandPalette } from "../components/shared/CommandPalette";
@@ -22,11 +23,24 @@ const navItems: {
 export function RootLayout() {
   const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
   const toggleSidebarCollapsed = useUiStore((s) => s.toggleSidebarCollapsed);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <WsProvider>
       <div className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""}`}>
-        <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
+        <button
+          type="button"
+          className="mobile-nav-toggle"
+          onClick={() => setMobileNavOpen((open) => !open)}
+          aria-expanded={mobileNavOpen}
+          aria-controls="main-sidebar"
+          aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+        >
+          {mobileNavOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
+          <span>{mobileNavOpen ? "Close" : "Menu"}</span>
+        </button>
+        {mobileNavOpen ? <button className="mobile-nav-backdrop" type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" /> : null}
+        <aside id="main-sidebar" className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}${mobileNavOpen ? " sidebar--mobile-open" : ""}`}>
           <div className="sidebar-top">
             <h1 className="sidebar-brand">
               <span className="sidebar-brand-full">OpenClaw</span>
@@ -51,6 +65,7 @@ export function RootLayout() {
                 to={to}
                 title={label}
                 aria-label={label}
+                onClick={() => setMobileNavOpen(false)}
                 activeProps={{ className: "sidebar-nav-link sidebar-nav-link--active" }}
                 inactiveProps={{ className: "sidebar-nav-link" }}
               >

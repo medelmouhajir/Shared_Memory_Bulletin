@@ -25,4 +25,10 @@ bun run typecheck
 bun test
 ```
 
+## Web App UX and PWA
+
+- The War Room UI is responsive across desktop, tablet, and mobile breakpoints.
+- The web client is installable as a Progressive Web App (PWA) with generated manifest and service worker.
+- This baseline PWA setup focuses on installability and static asset caching only; API/offline data behavior is intentionally not enabled in this phase.
+
 This environment did not have Bun installed during scaffolding, so npm was used only to resolve dependencies and run `tsc` checks.

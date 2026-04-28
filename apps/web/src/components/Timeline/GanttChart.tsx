@@ -10,9 +10,18 @@ export function GanttChart() {
         .filter((memory) => memory.scheduled_at)
         .map((memory) => (
           <article className="timeline-row" key={memory.id}>
-            <strong>{memory.assigned_to ?? "unassigned"}</strong>
-            <span>{memory.title}</span>
-            <time>{formatTime(memory.scheduled_at)}</time>
+            <div className="timeline-cell timeline-cell-agent">
+              <small>Agent</small>
+              <strong>{memory.assigned_to ?? "unassigned"}</strong>
+            </div>
+            <div className="timeline-cell timeline-cell-title">
+              <small>Task</small>
+              <span>{memory.title}</span>
+            </div>
+            <div className="timeline-cell timeline-cell-time">
+              <small>Scheduled</small>
+              <time>{formatTime(memory.scheduled_at)}</time>
+            </div>
           </article>
         ))}
     </section>

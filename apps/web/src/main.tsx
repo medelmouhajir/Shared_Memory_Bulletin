@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRootRoute, createRoute, createRouter, Navigate, RouterProvider } from "@tanstack/react-router";
+import { registerSW } from "virtual:pwa-register";
 
 import { RootLayout } from "./routes/__root";
 import { AgentsRoute } from "./routes/agents";
@@ -36,6 +37,7 @@ const routeTree = rootRoute.addChildren([
 ]);
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient();
+registerSW({ immediate: true });
 
 declare module "@tanstack/react-router" {
   interface Register {

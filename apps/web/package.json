@@ -16,13 +16,14 @@
     "@radix-ui/react-slot": "latest",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
-    "@vitejs/plugin-react": "latest",
+    "@vitejs/plugin-react": "^5.1.0",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "reactflow": "^11.11.4",
     "recharts": "latest",
     "tailwindcss": "latest",
-    "vite": "latest",
+    "vite": "^7.3.2",
     "xterm": "latest",
     "zustand": "latest"
   },
@@ -30,6 +31,7 @@
     "@types/bun": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vite-plugin-pwa": "^1.0.3"
   }
 }
